@@ -62,8 +62,8 @@ function renderInlined(ctx: Ctx, nodes: Tree.Node[], opts: Opts): MaybeVNodes | 
   });
 }
 
-function renderLines(ctx: Ctx, nodes: Tree.Node[], opts: Opts): VNode {
-  return h(
+const renderLines = (ctx: Ctx, nodes: Tree.Node[], opts: Opts): VNode =>
+  h(
     'lines',
     nodes.map(n => {
       return (
@@ -80,7 +80,6 @@ function renderLines(ctx: Ctx, nodes: Tree.Node[], opts: Opts): VNode {
       );
     })
   );
-}
 
 function renderMoveAndChildrenOf(ctx: Ctx, node: Tree.Node, opts: Opts): MaybeVNodes {
   const path = opts.parentPath + node.id,
