@@ -10,7 +10,9 @@
     "@types/cash": "workspace:*",
     "@types/highcharts": "=4.2.57",
     "@types/lichess": "workspace:*",
-    "common": "workspace:*"
+    "@types/plotly.js-dist-min": "^2.3.1",
+    "common": "workspace:*",
+    "plotly.js-dist-min": "^2.24.3"
   },
   "scripts": {
     "compile": "tsc",

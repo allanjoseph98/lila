@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -211,9 +211,15 @@ importers:
       '@types/lichess':
         specifier: workspace:*
         version: link:../@types/lichess
+      '@types/plotly.js-dist-min':
+        specifier: ^2.3.1
+        version: 2.3.1
       common:
         specifier: workspace:*
         version: link:../common
+      plotly.js-dist-min:
+        specifier: ^2.24.3
+        version: 2.24.3
 
   ui/chat:
     dependencies:
@@ -2972,6 +2978,16 @@ packages:
     resolution: {integrity: sha512-SuT16Q1K51EAVPz1K29DJ/sXjhSQ0zjvsypYJ6tlwVsRV9jwW5Adq2ch8Dq8kDBCkYnELS7N7VNCSB5nC56t/g==}
     dev: false
 
+  /@types/plotly.js-dist-min@2.3.1:
+    resolution: {integrity: sha512-9+rTvlyKDclIB9twal6ou6unUN6iTATLcRvakoFYaHGPnVRNe06LbUGOcgD8O+sddBFz3y2kS2hTKbUPGeVsHA==}
+    dependencies:
+      '@types/plotly.js': 2.12.24
+    dev: false
+
+  /@types/plotly.js@2.12.24:
+    resolution: {integrity: sha512-ahK4MWKztbFLSqMf8nUscMe60xF9jsFtQqsk0BTmUqkdnlR1a8UcbhrmPhKyzAnZ2e1kqUMamLPooyZA6GpUZg==}
+    dev: false
+
   /@types/prettier@2.7.1:
     resolution: {integrity: sha512-ri0UmynRRvZiiUJdiz38MmIblKK+oH30MztdBVR95dv/Ubw6neWSb8u1XpRb72L4qsZOhz+L+z9JD40SJmfWow==}
     dev: false
@@ -5379,6 +5395,10 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       find-up: 4.1.0
+    dev: false
+
+  /plotly.js-dist-min@2.24.3:
+    resolution: {integrity: sha512-NuX+/VaimP++uPlS4YdPOX/fg0ffOOvoaNmJenNcEu9fFWckCWxKkrknA5Jk7ZeweTEpzYTz6K1VGOstf8/PCw==}
     dev: false
 
   /prelude-ls@1.1.2:

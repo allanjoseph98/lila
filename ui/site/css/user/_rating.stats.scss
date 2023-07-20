@@ -18,6 +18,9 @@
   #rating_distribution_chart {
     height: 500px;
     margin-top: 2rem;
+    .xtick {
+      font-weight: bold;
+    }
   }
 
   .mselect {
