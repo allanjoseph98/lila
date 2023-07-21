@@ -3,6 +3,7 @@ import { DistributionData } from './interface';
 
 export default function (data: DistributionData) {
   const trans = lichess.trans(data.i18n);
+  const theme = currentTheme();
   $('#rating_distribution_chart').each(function (this: HTMLElement) {
     const arraySum = (arr: number[]) => arr.reduce((a, b) => a + b, 0);
     const ratingAt = (i: number) => 400 + i * 25;
@@ -50,23 +51,25 @@ export default function (data: DistributionData) {
         mode: 'lines+markers',
         marker: { color: blueLineColor, size: 7 },
         name: trans.noarg('players'),
+        //TODO
+        //hoverformat to locale
       },
       {
         y: cumul,
         yaxis: 'y2',
         textinfo: 'percent',
         x: ratings,
-        line: { color: '#dddf0d' },
+        line: { color: '#dddf0d', width: 3 },
         name: trans.noarg('cumulative'),
       },
     ];
     const layout: Partial<Layout> = {
       showlegend: false,
-      paper_bgcolor: '#262421',
-      plot_bgcolor: '#262421',
+      paper_bgcolor: theme == 'light' ? 'white' : '#262421',
+      plot_bgcolor: theme == 'light' ? 'white' : '#262421',
       margin: { t: 0, l: 50, b: 50, r: 50 },
       hovermode: 'x unified',
-      hoverlabel: { font: { color: '#a0a0a0' } },
+      hoverlabel: { font: { color: theme == 'light' ? gridColor : '#a0a0a0' } },
       font: {
         family: '"Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif',
       },
@@ -81,7 +84,9 @@ export default function (data: DistributionData) {
         tick0: ratings[0],
         dtick: 100,
         tickangle: -45,
-        spikecolor: gridColor,
+        spikecolor: '#8a8888',
+        spikethickness: 2,
+        range: [Math.min(...ratings), Math.max(...ratings)],
       },
       yaxis: {
         fixedrange: true,
@@ -90,9 +95,11 @@ export default function (data: DistributionData) {
         tickfont: {
           color: tickColor,
         },
+        rangemode: 'tozero',
       },
       yaxis2: {
         //cumul
+        showgrid: false,
         fixedrange: true,
         overlaying: 'y',
         title: makeTitle(trans.noarg('cumulative')),
