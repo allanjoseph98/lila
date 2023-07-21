@@ -58,7 +58,7 @@ export interface DistributionData {
     players: string;
     yourRating: string;
   };
-  myrating?: number;
+  myRating?: number;
   otherPlayer?: string;
   otherRating?: number;
 }
