@@ -1,4 +1,5 @@
 import type Highcharts from 'highcharts';
+import { PlotlyHTMLElement } from 'plotly.js-dist-min';
 
 export interface PlyChart extends Highcharts.ChartObject {
   firstPly: number;
@@ -47,7 +48,12 @@ export interface AnalyseData {
 
 export interface ChartGame {
   acpl(el: HTMLElement, data: AnalyseData, mainline: Tree.Node[], trans: Trans): Promise<AcplChart>;
-  movetime(el: HTMLElement, data: AnalyseData, trans: Trans, hunter: boolean): Promise<PlyChart>;
+  movetime(
+    el: HTMLElement,
+    data: AnalyseData,
+    trans: Trans,
+    hunter: boolean
+  ): Promise<PlotlyHTMLElement | undefined>;
 }
 
 export interface DistributionData {

@@ -2,8 +2,8 @@ import { PlyChart } from './interface';
 import { currentTheme } from 'common/theme';
 
 export interface MovePoint {
-  y: number | null;
-  x?: number;
+  y: number;
+  x: number;
   name?: any;
   marker?: any;
 }

@@ -28,7 +28,7 @@ export default async function (el: HTMLElement, data: AnalyseData, mainline: Tre
 
       const turn = Math.floor((node.ply - 1) / 2) + 1;
       const dots = isWhite ? '.' : '...';
-      const point: MovePoint = {
+      const point: Partial<MovePoint> = {
         name: turn + dots + ' ' + node.san,
         y: 2 / (1 + Math.exp(-0.004 * cp)) - 1,
       };
