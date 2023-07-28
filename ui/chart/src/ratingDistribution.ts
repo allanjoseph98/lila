@@ -2,7 +2,7 @@ import Plotly, { Config, Data, Layout, Shape } from 'plotly.js-dist-min';
 import { DistributionData } from './interface';
 import { currentTheme } from 'common/theme';
 
-export default function (data: DistributionData) {
+export default async function (data: DistributionData) {
   const trans = lichess.trans(data.i18n);
   const theme = currentTheme();
   $('#rating_distribution_chart').each(function (this: HTMLElement) {

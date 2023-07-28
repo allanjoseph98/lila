@@ -4,7 +4,7 @@ import { currentTheme } from 'common/theme';
 export interface MovePoint {
   y: number;
   x: number;
-  name?: any;
+  name?: string;
   marker?: any;
 }
 
