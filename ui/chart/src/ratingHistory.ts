@@ -1,30 +1,29 @@
 import { loadHighcharts } from './common';
 
 interface Opts {
-  data: any;
-  singlePerfName: string;
-  perfIndex: number;
+  data: PerfRatingHistory[];
+  singlePerfName?: string;
+  perfIndex?: number;
 }
 
-export async function initModule({ data, singlePerfName, perfIndex }: Opts) {
-  const oneDay = 86400000;
-  function smoothDates(data: any[]) {
+  function smoothDates(data: [number, number][]) {
     if (!data.length) return [];
 
+    const oneDay = 86400000;
     const begin = data[0][0];
     const end = data[data.length - 1][0];
     const reversed = data.slice().reverse();
-    const allDates: any[] = [];
+    const allDates: number[] = [];
     for (let i = begin - oneDay; i <= end; i += oneDay) allDates.push(i);
-    const result = [];
+    const lastRatingByDate: [number, number][] = [];
     for (let j = 1; j < allDates.length; j++) {
-      const match = reversed.find((x: number[]) => x[0] <= allDates[j]);
-      result.push([allDates[j], match[1]]);
+      const match = reversed.find(x => x[0] <= allDates[j]);
+      if (match) lastRatingByDate.push([allDates[j], match[1]]);
     }
-    return result;
+    return lastRatingByDate;
   }
   const $el = $('div.rating-history');
-  const singlePerfIndex = data.findIndex((x: any) => x.name === singlePerfName);
+  const singlePerfIndex = data.findIndex(x => x.name === singlePerfName);
   if (singlePerfName && data[singlePerfIndex].points.length === 0) {
     $el.hide();
     return;

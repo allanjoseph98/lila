@@ -42,8 +42,8 @@ export default async function (el: HTMLElement, data: AnalyseData, trans: Trans,
 
   moveCentis.forEach((centis: number, x: number) => {
     const node = tree[x + 1];
-    ply = node ? node.ply : ply + 1;
-    const san = node ? node.san : '-';
+    ply = node?.ply ?? ply + 1;
+    const san = node?.san ?? '-';
 
     const turn = (ply + 1) >> 1;
     const color = ply & 1;

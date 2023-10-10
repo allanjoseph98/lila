@@ -68,3 +68,8 @@ export interface DistributionData {
   otherPlayer?: string;
   otherRating?: number;
 }
+
+export interface PerfRatingHistory {
+  name: string;
+  points: [number, number, number, number][];
+}
