@@ -26,6 +26,7 @@ Chart.defaults.font = fontFamily();
 const v = {
   server: -1,
   network: -1,
+  networkAlt: -1,
 };
 
 export async function initModule() {
@@ -102,34 +103,32 @@ export async function initModule() {
     if (index == 0)
       site.pubsub.on('socket.in.mlat', (d: number) => {
         v.server = d;
-        if (v.server <= 0) return;
-        chart.options.plugins!.needle!.value = Math.min(750, v.server);
-        chart.options.plugins!.title!.text! = makeTitle(index, v.server);
-        updateAnswer();
+        update(chart, v.server, false);
       });
     else {
       setInterval(function () {
         v.network = Math.round(site.socket.averageLag);
-        if (v.network <= 0) return;
-        chart.options.plugins!.needle!.value = Math.min(750, v.network);
-        chart.options.plugins!.title!.text! = makeTitle(index, v.network);
-        updateAnswer();
+        update(chart, v.network, true);
       }, 1000);
     }
-    const updateAnswer = () => {
-      if (v.server === -1 || v.network === -1) return;
-      const c = v.server <= 100 && v.network <= 500 ? 'nope-nope' : v.server <= 100 ? 'nope-yep' : 'yep';
-      $('.lag .answer span')
-        .addClass('none')
-        .parent()
-        .find('.' + c)
-        .removeClass('none');
-      chart.update();
-    };
   });
 }
 
-const makeTitle = (index: number, lat: number) => [
-  (index ? 'Ping' : 'Server latency') + ' in milliseconds',
+const update = (chart: Chart<'doughnut'>, val: number, ping: boolean) => {
+  if (val <= 0) return;
+  chart.options.plugins!.needle!.value = Math.min(750, val);
+  chart.options.plugins!.title!.text! = makeTitle(ping, val);
+  if (v.server === -1 || v.network === -1) return;
+  const c = v.server <= 100 && v.network <= 500 ? 'nope-nope' : v.server <= 100 ? 'nope-yep' : 'yep';
+  $('.lag .answer span')
+    .addClass('none')
+    .parent()
+    .find('.' + c)
+    .removeClass('none');
+  chart.update();
+};
+
+const makeTitle = (ping: boolean, lat: number) => [
+  (ping ? 'Ping' : 'Server latency') + ' in milliseconds',
   `${lat}`,
 ];
