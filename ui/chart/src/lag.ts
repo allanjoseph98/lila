@@ -31,6 +31,9 @@ const v = {
 
 export async function initModule() {
   site.StrongSocket.firstConnect.then(() => site.socket.send('moveLat', true));
+  const otherSocket = new site.StrongSocket('/socket/v5', false, {
+    options: { useAlt: !usingAltSocket },
+  });
   $('.meter canvas').each(function (this: HTMLCanvasElement, index) {
     const colors = ['#55bf3b', '#dddf0d', '#df5353'];
     const dataset: ChartDataset<'doughnut'>[] = [
@@ -107,17 +110,20 @@ export async function initModule() {
       });
     else {
       setInterval(function () {
-        v.network = Math.round(site.socket.averageLag);
-        update(chart, v.network, true);
+        const altSocket = usingAltSocket ? site.socket : otherSocket;
+        const directSocket = usingAltSocket ? otherSocket : site.socket;
+        v.network = Math.round(directSocket.averageLag);
+        v.networkAlt = Math.round(altSocket.averageLag);
+        update(chart, v.network, true, v.networkAlt);
       }, 1000);
     }
   });
 }
 
-const update = (chart: Chart<'doughnut'>, val: number, ping: boolean) => {
-  if (val <= 0) return;
-  chart.options.plugins!.needle!.value = Math.min(750, val);
-  chart.options.plugins!.title!.text! = makeTitle(ping, val);
+const update = (chart: Chart<'doughnut'>, lat: number, ping: boolean, altLat?: number) => {
+  if (lat <= 0) return;
+  chart.options.plugins!.needle!.value = Math.min(750, lat);
+  chart.options.plugins!.title!.text! = makeTitle(ping, lat, altLat);
   if (v.server === -1 || v.network === -1) return;
   const c = v.server <= 100 && v.network <= 500 ? 'nope-nope' : v.server <= 100 ? 'nope-yep' : 'yep';
   $('.lag .answer span')
@@ -128,7 +134,10 @@ const update = (chart: Chart<'doughnut'>, val: number, ping: boolean) => {
   chart.update();
 };
 
-const makeTitle = (ping: boolean, lat: number) => [
+const makeTitle = (ping: boolean, lat: number, altLat?: number) => [
   (ping ? 'Ping' : 'Server latency') + ' in milliseconds',
   `${lat}`,
+  altLat ? `${altLat} using CDN routing` : '',
 ];
+
+const usingAltSocket = document.body.classList.contains('socket-alt');

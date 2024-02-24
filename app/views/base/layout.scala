@@ -302,7 +302,8 @@ object layout:
               "no-flair"             -> !pref.flairs,
               "zen"                  -> (pref.isZen || (playing && pref.isZenAuto)),
               "zenable"              -> zenable,
-              "zen-auto"             -> (zenable && pref.isZenAuto)
+              "zen-auto"             -> (zenable && pref.isZenAuto),
+              "socket-alt"           -> pref.isUsingAltSocket
             )
           },
           dataDev,
@@ -310,7 +311,7 @@ object layout:
           dataUser     := ctx.userId,
           dataSoundSet := pref.currentSoundSet.toString,
           dataSocketDomains,
-          pref.isUsingAltSocket option dataSocketAlts,
+          dataSocketAlts,
           dataAssetUrl,
           dataAssetVersion := assetVersion,
           dataNonce        := ctx.nonce.ifTrue(sameAssetDomain).map(_.value),

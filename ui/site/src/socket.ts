@@ -32,6 +32,7 @@ interface Options {
   protocol: string;
   isAuth: boolean;
   debug?: boolean;
+  useAlt: boolean;
 }
 interface Params {
   sri: Sri;
@@ -66,13 +67,11 @@ export default class StrongSocket {
   tryOtherUrl = false;
   autoReconnect = true;
   nbConnects = 0;
-  storage: LichessStorage = makeStorage.make(
-    document.body.dataset.socketAlternates ? 'surl-alt' : 'surl17',
-    30 * 60 * 1000,
-  );
+  storage: LichessStorage;
   private _sign?: string;
   private resendWhenOpen: [string, any, any][] = [];
-  private baseUrls = (document.body.dataset.socketAlts || document.body.dataset.socketDomains!).split(',');
+  private baseUrls = document.body.dataset.socketDomains!.split(',');
+  private altUrls = document.body.dataset.socketAlts!.split(',');
   static defaultOptions: Options = {
     idle: false,
     pingMaxLag: 9000, // time to wait for pong before resetting the connection
@@ -80,6 +79,7 @@ export default class StrongSocket {
     autoReconnectDelay: 3500,
     protocol: location.protocol === 'https:' ? 'wss:' : 'ws:',
     isAuth: document.body.hasAttribute('data-user'),
+    useAlt: document.body.classList.contains('socket-alt'),
   };
   static defaultParams: Params = {
     sri: sri,
@@ -110,6 +110,7 @@ export default class StrongSocket {
       ...(settings.options || {}),
       pingDelay: customPingDelay > 400 ? customPingDelay : 2500,
     };
+    this.storage = makeStorage.make(this.options.useAlt ? 'surl-alt' : 'surl17', 30 * 60 * 1000);
     this.version = version;
     this.pubsub.on('socket.send', this.send);
     this.connect();
@@ -348,12 +349,13 @@ export default class StrongSocket {
 
   baseUrl = () => {
     let url = this.storage.get();
+    const baseUrls = this.options.useAlt ? this.altUrls : this.baseUrls;
     if (!url) {
-      url = this.baseUrls[Math.floor(Math.random() * this.baseUrls.length)];
+      url = baseUrls[Math.floor(Math.random() * baseUrls.length)];
       this.storage.set(url);
     } else if (this.tryOtherUrl) {
-      const i = this.baseUrls.findIndex(u => u === url);
-      url = this.baseUrls[(i + 1) % this.baseUrls.length];
+      const i = baseUrls.findIndex(u => u === url);
+      url = baseUrls[(i + 1) % baseUrls.length];
       this.storage.set(url);
     }
     this.tryOtherUrl = false;
