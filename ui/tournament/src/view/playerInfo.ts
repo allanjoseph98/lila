@@ -9,16 +9,8 @@ import * as status from 'game/status';
 import TournamentController from '../ctrl';
 import { Player } from '../interfaces';
 
-function result(win: boolean, stat: number): string {
-  switch (win) {
-    case true:
-      return '1';
-    case false:
-      return '0';
-    default:
-      return stat >= status.ids.mate ? '½' : '*';
-  }
-}
+const result = (win: boolean | undefined, stat: number) =>
+  win !== undefined ? (win ? '1' : '0') : stat >= status.ids.mate ? '½' : '*';
 
 const playerTitle = (player: Player) =>
   h('h2', [player.rank ? h('span.rank', `${player.rank}. `) : '', renderPlayer(player, true, false, false)]);
@@ -101,4 +93,4 @@ export default function (ctrl: TournamentController): VNode {
 }
 
 const berserkTd = (b: boolean) =>
-  b ? h('td.berserk', { attrs: { 'data-icon': licon.Berserk, title: 'Berserk' } }) : h('td.berserk');
+  h('td.berserk', b && { attrs: { 'data-icon': licon.Berserk, title: 'Berserk' } });

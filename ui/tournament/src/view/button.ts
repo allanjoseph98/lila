@@ -4,12 +4,11 @@ import { spinnerVdom as spinner } from 'common/spinner';
 import { bind, dataIcon } from 'common/snabbdom';
 import TournamentController from '../ctrl';
 
-function orJoinSpinner(ctrl: TournamentController, f: () => VNode): VNode {
-  return ctrl.joinSpinner ? spinner() : f();
-}
+const orJoinSpinner = (ctrl: TournamentController, f: () => VNode): VNode =>
+  ctrl.joinSpinner ? spinner() : f();
 
-export function withdraw(ctrl: TournamentController): VNode {
-  return orJoinSpinner(ctrl, () => {
+export const withdraw = (ctrl: TournamentController): VNode =>
+  orJoinSpinner(ctrl, () => {
     const pause = ctrl.data.isStarted;
     return h(
       'button.fbt.text',
@@ -20,10 +19,9 @@ export function withdraw(ctrl: TournamentController): VNode {
       ctrl.trans.noarg(pause ? 'pause' : 'withdraw'),
     );
   });
-}
 
-export function join(ctrl: TournamentController): VNode {
-  return orJoinSpinner(ctrl, () => {
+export const join = (ctrl: TournamentController): VNode =>
+  orJoinSpinner(ctrl, () => {
     const delay = ctrl.data.me && ctrl.data.me.pauseDelay;
     const joinable = ctrl.data.verdicts.accepted && !delay;
     const button = h(
@@ -57,7 +55,6 @@ export function join(ctrl: TournamentController): VNode {
         ])
       : button;
   });
-}
 
 export function joinWithdraw(ctrl: TournamentController): VNode | undefined {
   if (!ctrl.opts.userId)

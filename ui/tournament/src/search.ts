@@ -4,16 +4,15 @@ import { bind, onInsert } from 'common/snabbdom';
 import TournamentController from './ctrl';
 import { userComplete } from 'common/userComplete';
 
-export function button(ctrl: TournamentController): VNode {
-  return h('button.fbt', {
+export const button = (ctrl: TournamentController): VNode =>
+  h('button.fbt', {
     class: { active: ctrl.searching },
     attrs: { 'data-icon': ctrl.searching ? licon.X : licon.Search, title: 'Search tournament players' },
     hook: bind('click', ctrl.toggleSearch, ctrl.redraw),
   });
-}
 
-export function input(ctrl: TournamentController): VNode {
-  return h(
+export const input = (ctrl: TournamentController): VNode =>
+  h(
     'div.search',
     h('input', {
       attrs: { spellcheck: 'false' },
@@ -41,4 +40,3 @@ export function input(ctrl: TournamentController): VNode {
       }),
     }),
   );
-}

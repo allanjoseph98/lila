@@ -24,8 +24,8 @@ function featuredPlayer(game: FeaturedGame, color: Color, opts: TournamentOpts) 
   ]);
 }
 
-function featured(game: FeaturedGame, opts: TournamentOpts): VNode {
-  return h(
+const featured = (game: FeaturedGame, opts: TournamentOpts): VNode =>
+  h(
     `div.tour__featured.mini-game.mini-game-${game.id}.mini-game--init.is2d`,
     {
       attrs: { 'data-state': `${game.fen},${game.orientation},${game.lastMove}`, 'data-live': game.id },
@@ -37,7 +37,6 @@ function featured(game: FeaturedGame, opts: TournamentOpts): VNode {
       featuredPlayer(game, game.orientation, opts),
     ],
   );
-}
 
 const duelPlayerMeta = (p: DuelPlayer, ctrl: TournamentController) => [
   h('em.rank', '#' + p.k),

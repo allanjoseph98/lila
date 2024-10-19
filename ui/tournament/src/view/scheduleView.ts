@@ -4,6 +4,7 @@ import perfIcons from 'common/perfIcons';
 import { Tournament, Clock } from '../interfaces';
 import { Ctrl, Lane } from '../tournament.schedule';
 import dragscroll from 'dragscroll';
+import { padWithZero } from './util';
 
 const scale = 8;
 let now: number, startTime: number, stopTime: number;
@@ -32,9 +33,7 @@ function displayClockLimit(limit: number) {
   }
 }
 
-function displayClock(clock: Clock) {
-  return displayClockLimit(clock.limit) + '+' + clock.increment;
-}
+const displayClock = (clock: Clock) => displayClockLimit(clock.limit) + '+' + clock.increment;
 
 function leftPos(time: number) {
   const rounded = 1000 * 60 * Math.floor(time / 1000 / 60);
@@ -50,65 +49,53 @@ function laneGrouper(t: Tournament): number {
     return 50 + parseInt(t.fullName.slice(1, 5)) / 10000;
   } else if (t.schedule && t.schedule.speed === 'superBlitz') {
     return t.perf.position - 0.5;
-  } else if (t.schedule && t.schedule.speed === 'hyperBullet') {
-    return 4;
-  } else if (t.schedule && t.perf.key === 'ultraBullet') {
+  } else if ((t.schedule && t.schedule.speed === 'hyperBullet') || t.perf.key === 'ultraBullet') {
     return 4;
   } else {
     return t.perf.position;
   }
 }
 
-function group(arr: Tournament[], grouper: (t: Tournament) => number): Lane[] {
-  const groups: Dictionary<Tournament[]> = {};
-  let g;
-  arr.forEach(e => {
-    g = grouper(e);
-    if (groups[g]) groups[g]?.push(e);
-    else groups[g] = [e];
-  });
-  return Object.keys(groups)
-    .sort()
-    .map(function (k) {
-      return groups[k]!;
-    });
-}
+const group = (arr: Tournament[], grouper: (t: Tournament) => number): Lane[] =>
+  Array.from(
+    arr.reduce<Map<number, Tournament[]>>((groups, e) => {
+      const groupId = grouper(e);
+      const maybeGroup = groups.get(groupId);
+      maybeGroup ? maybeGroup.push(e) : groups.set(groupId, [e]);
+      return groups;
+    }, new Map()),
+  )
+    .sort(([a, _], [b, _2]) => a - b)
+    .map(g => g[1]);
 
-function truncSeconds(epoch: number): number {
-  return epoch - (epoch % (60 * 1000));
-}
+const truncSeconds = (epoch: number): number => epoch - (epoch % (60 * 1000));
 
-function fitLane(lane: Lane, tour2: Tournament) {
-  return !lane.some(function (tour1: Tournament) {
-    return !(
-      truncSeconds(tour1.finishesAt) <= truncSeconds(tour2.startsAt) ||
-      truncSeconds(tour2.finishesAt) <= truncSeconds(tour1.startsAt)
-    );
-  });
-}
+const fitLane = (lane: Lane, tour2: Tournament) =>
+  !lane.some(
+    (tour1: Tournament) =>
+      !(
+        truncSeconds(tour1.finishesAt) <= truncSeconds(tour2.startsAt) ||
+        truncSeconds(tour2.finishesAt) <= truncSeconds(tour1.startsAt)
+      ),
+  );
 
 // splits lanes that have collisions, but keeps
 // groups separate by not compacting existing lanes
-function splitOverlaping(lanes: Lane[]): Lane[] {
-  let ret: Lane[] = [],
-    i: number;
-  lanes.forEach(lane => {
-    const newLanes: Lane[] = [[]];
-    lane.forEach(tour => {
-      let collision = true;
-      for (i = 0; i < newLanes.length; i++) {
-        if (fitLane(newLanes[i], tour)) {
-          newLanes[i].push(tour);
-          collision = false;
-          break;
-        }
-      }
-      if (collision) newLanes.push([tour]);
-    });
-    ret = ret.concat(newLanes);
-  });
-  return ret;
-}
+const splitOverlaping = (lanes: Lane[]): Lane[] =>
+  lanes.reduce<Lane[]>(
+    (ret, lane) =>
+      ret.concat(
+        lane.reduce<Lane[]>(
+          (newLanes, tour) => {
+            const maybeFit = newLanes.find(l => fitLane(l, tour));
+            maybeFit ? maybeFit.push(tour) : newLanes.push([tour]);
+            return newLanes;
+          },
+          [[]],
+        ),
+      ),
+    [],
+  );
 
 function tournamentClass(tour: Tournament): Classes {
   const finished = tour.status === 30,
@@ -218,13 +205,7 @@ function renderTimeline() {
 }
 
 // converts Date to "%H:%M" with leading zeros
-function timeString(time: Date) {
-  return ('0' + time.getHours()).slice(-2) + ':' + ('0' + time.getMinutes()).slice(-2);
-}
-
-function isSystemTournament(t: Tournament) {
-  return !!t.schedule;
-}
+const timeString = (time: Date) => padWithZero(time.getHours()) + ':' + padWithZero(time.getMinutes());
 
 export default function (ctrl: Ctrl) {
   now = Date.now();
@@ -241,8 +222,7 @@ export default function (ctrl: Ctrl) {
     .concat(data.created)
     .filter(t => t.finishesAt > startTime)
     .forEach(t => {
-      if (isSystemTournament(t)) systemTours.push(t);
-      else userTours.push(t);
+      t.schedule ? systemTours.push(t) : userTours.push(t);
     });
 
   // group system tournaments into dedicated lanes for PerfType
@@ -281,12 +261,12 @@ export default function (ctrl: Ctrl) {
       },
       [
         renderTimeline(),
-        ...tourLanes.map(lane => {
-          return h(
+        ...tourLanes.map(lane =>
+          h(
             'div.tournamentline',
             lane.map(tour => renderTournament(ctrl, tour)),
-          );
-        }),
+          ),
+        ),
       ],
     ),
   ]);

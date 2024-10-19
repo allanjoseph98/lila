@@ -9,15 +9,16 @@ import { Tournament } from '../interfaces';
 import { Ctrl, Lanes } from '../tournament.calendar';
 import * as licon from 'common/licon';
 import perfIcons from 'common/perfIcons';
+import { padWithZero } from './util';
 
 function tournamentClass(tour: Tournament, day: Date): Classes {
-  const classes = {
+  const classes: Classes = {
     rated: tour.rated,
     casual: !tour.rated,
     'max-rating': tour.hasMaxRating,
     yesterday: tour.bounds.start < day,
-  } as Classes;
-  if (tour.schedule) classes[tour.schedule.freq] = true;
+  };
+  classes[tour.schedule.freq] = !!tour.schedule;
   return classes;
 }
 
@@ -48,31 +49,25 @@ function renderTournament(tour: Tournament, day: Date) {
   );
 }
 
-function renderLane(tours: Tournament[], day: Date) {
-  return h(
+const renderLane = (tours: Tournament[], day: Date) =>
+  h(
     'lane',
     tours.map(t => renderTournament(t, day)),
   );
-}
 
-function fitLane(lane: Tournament[], tour2: Tournament) {
-  return !lane.some(tour1 => {
-    return areIntervalsOverlapping(tour1.bounds, tour2.bounds);
-  });
-}
+const fitLane = (lane: Tournament[], tour2: Tournament) =>
+  !lane.some(tour1 => areIntervalsOverlapping(tour1.bounds, tour2.bounds));
 
-function makeLanes(tours: Tournament[]): Lanes {
-  const lanes: Lanes = [];
-  tours.forEach(t => {
+const makeLanes = (tours: Tournament[]): Lanes =>
+  tours.reduce<Lanes>((lanes, t) => {
     const lane = lanes.find(l => fitLane(l, t));
-    if (lane) lane.push(t);
-    else lanes.push([t]);
-  });
-  return lanes;
-}
+    lane ? lane.push(t) : lanes.push([t]);
+    return lanes;
+  }, []);
 
-function renderDay(ctrl: Ctrl) {
-  return function (day: Date): VNode {
+const renderDay =
+  (ctrl: Ctrl) =>
+  (day: Date): VNode => {
     const dayEnd = addDays(day, 1);
     const tours = ctrl.data.tournaments.filter(t => t.bounds.start < dayEnd && t.bounds.end > day);
     return h('day', [
@@ -83,40 +78,29 @@ function renderDay(ctrl: Ctrl) {
       ),
     ]);
   };
-}
 
-function renderGroup(ctrl: Ctrl) {
-  return function (group: Date[]): VNode {
-    return h('group', [renderTimeline(), h('days', group.map(renderDay(ctrl)))]);
-  };
-}
+const renderGroup =
+  (ctrl: Ctrl) =>
+  (group: Date[]): VNode =>
+    h('group', [renderTimeline(), h('days', group.map(renderDay(ctrl)))]);
 
-function renderTimeline() {
-  const hours: number[] = [];
-  for (let i = 0; i < 24; i++) hours.push(i);
-  return h(
+const renderTimeline = () =>
+  h(
     'div.timeline',
-    hours.map(hour =>
+    Array.from(Array(25).keys()).map(hour =>
       h(
         'div.timeheader',
         { attrs: { style: startDirection() + ': ' + (hour / 24) * 100 + '%' } },
-        timeString(hour),
+        padWithZero(hour),
       ),
     ),
   );
-}
 
-// converts Date to "%H:%M" with leading zeros
-function timeString(hour: number) {
-  return ('0' + hour).slice(-2);
-}
-
-function makeGroups(days: Date[]): Date[][] {
-  const groups: Date[][] = [],
-    chunk = 10;
-  for (let i = 0; i < days.length; i += chunk) groups.push(days.slice(i, i + chunk));
-  return groups;
-}
+const makeGroups = (days: Date[]): Date[][] =>
+  days.reduce<Date[][]>((groups, d, i) => {
+    i % 10 == 0 ? groups.push([d]) : groups[groups.length - 1].push(d);
+    return groups;
+  }, []);
 
 export default function (ctrl: Ctrl) {
   const days = eachDayOfInterval({

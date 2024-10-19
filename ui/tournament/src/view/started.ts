@@ -9,19 +9,17 @@ import * as pagination from '../pagination';
 import TournamentController from '../ctrl';
 import { MaybeVNodes } from 'common/snabbdom';
 
-function joinTheGame(ctrl: TournamentController, gameId: string) {
-  return h('a.tour__ur-playing.button.is.is-after', { attrs: { href: '/' + gameId } }, [
+const joinTheGame = (ctrl: TournamentController, gameId: string): VNode =>
+  h('a.tour__ur-playing.button.is.is-after', { attrs: { href: '/' + gameId } }, [
     ctrl.trans('youArePlaying'),
     h('br'),
     ctrl.trans('joinTheGame'),
   ]);
-}
 
-function notice(ctrl: TournamentController): VNode {
-  return ctrl.willBePaired()
+const notice = (ctrl: TournamentController): VNode =>
+  ctrl.willBePaired()
     ? h('div.tour__notice.bar-glider', ctrl.trans('standByX', ctrl.data.myUsername!))
     : h('div.tour__notice.closed', ctrl.trans('tournamentPairingsAreNowClosed'));
-}
 
 export const name = 'started';
 
@@ -37,6 +35,5 @@ export function main(ctrl: TournamentController): MaybeVNodes {
   ];
 }
 
-export function table(ctrl: TournamentController): VNode | undefined {
-  return ctrl.playerInfo.id ? playerInfo(ctrl) : ctrl.teamInfo.requested ? teamInfo(ctrl) : tourTable(ctrl);
-}
+export const table = (ctrl: TournamentController): VNode | undefined =>
+  ctrl.playerInfo.id ? playerInfo(ctrl) : ctrl.teamInfo.requested ? teamInfo(ctrl) : tourTable(ctrl);

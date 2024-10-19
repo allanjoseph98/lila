@@ -30,15 +30,11 @@ function doCountDown(targetTime: number) {
 }
 
 export function end(data: TournamentData) {
-  if (data.me && data.isRecentlyFinished && once('tournament.end.sound.' + data.id)) {
-    let key = 'Other';
-    if (data.me.rank < 4) key = '1st';
-    else if (data.me.rank < 11) key = '2nd';
-    else if (data.me.rank < 21) key = '3rd';
-
-    site.sound.play('tournament' + key);
-  }
+  if (data.me && data.isRecentlyFinished && once('tournament.end.sound.' + data.id))
+    site.sound.play('tournament' + keyFromRank(data.me.rank));
 }
+
+const keyFromRank = (rank: number) => (rank < 4 ? '1st' : rank < 11 ? '2nd' : rank < 21 ? '3rd' : 'Other');
 
 export function countDown(data: TournamentData) {
   if (!data.me || !data.secondsToStart) {

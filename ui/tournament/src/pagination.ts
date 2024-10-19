@@ -7,27 +7,25 @@ import * as search from './search';
 
 export const maxPerPage = 10;
 
-function button(
+const button = (
   text: string,
   icon: string,
   click: () => void,
   enable: boolean,
   ctrl: TournamentController,
-): VNode {
-  return h('button.fbt.is', {
+): VNode =>
+  h('button.fbt.is', {
     attrs: { 'data-icon': icon, disabled: !enable, title: text },
     hook: bind('mousedown', click, ctrl.redraw),
   });
-}
 
-function scrollToMeButton(ctrl: TournamentController): VNode | undefined {
-  if (ctrl.data.me)
-    return h('button.fbt' + (ctrl.focusOnMe ? '.active' : ''), {
-      attrs: { 'data-icon': licon.Target, title: 'Scroll to your player' },
-      hook: bind('mousedown', ctrl.toggleFocusOnMe, ctrl.redraw),
-    });
-  return undefined;
-}
+const scrollToMeButton = (ctrl: TournamentController): VNode | undefined =>
+  ctrl.data.me
+    ? h('button.fbt' + (ctrl.focusOnMe ? '.active' : ''), {
+        attrs: { 'data-icon': licon.Target, title: 'Scroll to your player' },
+        hook: bind('mousedown', ctrl.toggleFocusOnMe, ctrl.redraw),
+      })
+    : undefined;
 
 export function renderPager(ctrl: TournamentController, pag: Pagination): MaybeVNodes {
   const enabled = !!pag.currentPageResults,
@@ -66,7 +64,5 @@ export function players(ctrl: TournamentController): Pagination {
   };
 }
 
-export function myPage(ctrl: TournamentController): number | undefined {
-  if (ctrl.data.me) return Math.floor((ctrl.data.me.rank - 1) / 10) + 1;
-  return undefined;
-}
+export const myPage = (ctrl: TournamentController): number | undefined =>
+  ctrl.data.me ? Math.floor((ctrl.data.me.rank - 1) / 10) + 1 : undefined;

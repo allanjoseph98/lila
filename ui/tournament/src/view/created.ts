@@ -21,6 +21,5 @@ export function main(ctrl: TournamentController): MaybeVNodes {
   ];
 }
 
-export function table(ctrl: TournamentController): VNode | undefined {
-  return ctrl.teamInfo.requested ? teamInfo(ctrl) : undefined;
-}
+export const table = (ctrl: TournamentController): VNode | undefined =>
+  ctrl.teamInfo.requested ? teamInfo(ctrl) : undefined;

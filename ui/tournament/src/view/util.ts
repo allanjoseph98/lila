@@ -48,3 +48,5 @@ export function numberRow(name: string, value: any, typ?: string) {
     ),
   ]);
 }
+
+export const padWithZero = (n: number): string => `${n}`.padStart(2, '0');

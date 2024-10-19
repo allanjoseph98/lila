@@ -9,23 +9,18 @@ import * as button from './button';
 import * as pagination from '../pagination';
 import { userLink } from 'common/userLink';
 
-const renderScoreString = (scoreString: string, streakable: boolean) => {
+const renderScoreString = (scoreString: string, streakable: boolean): VNode[] => {
   const values = scoreString.split('').map(s => parseInt(s));
   values.reverse(); // in place!
   if (!streakable) return values.map(v => h('score', v));
-  const nodes = [];
   let streak = 0;
-  for (const v of values) {
+  return values.map(v => {
     const win = v == 2 ? streak < 2 : v > 2;
     const tag = streak > 1 && v > 1 ? 'double' : win ? 'streak' : 'score';
-    if (win) {
-      streak++;
-    } else {
-      streak = 0;
-    }
-    nodes.push(h(tag, v));
-  }
-  return nodes;
+    if (win) streak++;
+    else streak = 0;
+    return h(tag, v);
+  });
 };
 
 function playerTr(ctrl: TournamentController, player: StandingPlayer) {

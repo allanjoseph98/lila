@@ -17,8 +17,8 @@ const hasFreq = (freq: 'shield' | 'marathon', d: TournamentData) => d.schedule?.
 function clock(ctrl: TournamentController): VNode | undefined {
   const d = ctrl.data;
   if (d.isFinished) return;
-  if (d.secondsToFinish) return h('div.clock', [h('div.time', { hook: startClock(d.secondsToFinish) })]);
-  if (d.secondsToStart) {
+  else if (d.secondsToFinish) return h('div.clock', [h('div.time', { hook: startClock(d.secondsToFinish) })]);
+  else if (d.secondsToStart) {
     if (d.secondsToStart > oneDayInSeconds)
       return h('div.clock', [
         h('time.timeago.shy', {
@@ -40,13 +40,11 @@ function clock(ctrl: TournamentController): VNode | undefined {
       h('span.shy', ctrl.trans.noarg('startingIn')),
       h('span.time.text', { hook: startClock(d.secondsToStart) }),
     ]);
-  }
-  return undefined;
+  } else return undefined;
 }
 
 function image(d: TournamentData): VNode | undefined {
-  if (d.isFinished) return;
-  if (hasFreq('shield', d) || hasFreq('marathon', d)) return;
+  if (d.isFinished || hasFreq('shield', d) || hasFreq('marathon', d)) return;
   const s = d.spotlight;
   if (s && s.iconImg) return h('img.img', { attrs: { src: site.asset.url('images/' + s.iconImg) } });
   return h('i.img', { attrs: dataIcon(s?.iconFont || licon.Trophy) });

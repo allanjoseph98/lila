@@ -12,13 +12,12 @@ import { numberRow } from './util';
 import { MaybeVNodes } from 'common/snabbdom';
 import { once } from 'common/storage';
 
-function confetti(data: TournamentData): VNode | undefined {
-  if (data.me && data.isRecentlyFinished && once('tournament.end.canvas.' + data.id))
-    return h('canvas#confetti', {
-      hook: { insert: _ => site.asset.loadEsm('bits.confetti') },
-    });
-  return undefined;
-}
+const confetti = (data: TournamentData): VNode | undefined =>
+  data.me && data.isRecentlyFinished && once('tournament.end.canvas.' + data.id)
+    ? h('canvas#confetti', {
+        hook: { insert: _ => site.asset.loadEsm('bits.confetti') },
+      })
+    : undefined;
 
 function stats(ctrl: TournamentController): VNode | undefined {
   const data = ctrl.data,
@@ -111,6 +110,5 @@ export function main(ctrl: TournamentController): MaybeVNodes {
   ];
 }
 
-export function table(ctrl: TournamentController): VNode | undefined {
-  return ctrl.playerInfo.id ? playerInfo(ctrl) : ctrl.teamInfo.requested ? teamInfo(ctrl) : stats(ctrl);
-}
+export const table = (ctrl: TournamentController): VNode | undefined =>
+  ctrl.playerInfo.id ? playerInfo(ctrl) : ctrl.teamInfo.requested ? teamInfo(ctrl) : stats(ctrl);

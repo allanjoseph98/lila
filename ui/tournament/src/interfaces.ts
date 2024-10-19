@@ -183,7 +183,7 @@ export interface Pairing {
     title?: string;
     berserk?: boolean;
   };
-  win: boolean;
+  win?: boolean;
   status: number;
   berserk: boolean;
 }
