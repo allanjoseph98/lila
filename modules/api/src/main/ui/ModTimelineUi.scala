@@ -23,21 +23,44 @@ final class ModTimelineUi(helpers: Helpers)(
   import helpers.{ *, given }
   import ModTimeline.*
 
-  def render(t: ModTimeline)(using Translate) = div(cls := "mod-timeline"):
-    t.allGroupedByDay.map(renderDay(t))
+  def renderGeneral(t: ModTimeline)(using Translate) = render(t)(using Angle.None)
+  def renderComm(t: ModTimeline)(using Translate)    = render(t)(using Angle.Comm)
+  def renderPlay(t: ModTimeline)(using Translate)    = render(t)(using Angle.Play)
 
-  private def renderDay(t: ModTimeline)(day: (LocalDate, List[Event]))(using Translate) =
-    div(cls := "mod-timeline__day")(
-      h3(showDate(day._1)),
-      div(cls := "mod-timeline__day__events")(day._2.map(renderEvent(t)))
+  private val eventOrdering = summon[Ordering[Instant]].reverse
+
+  private def render(t: ModTimeline)(using angle: Angle)(using Translate) = div(cls := "mod-timeline"):
+    t.all
+      .filter(Angle.filter)
+      .map: e =>
+        daysFromNow(e.at.date) -> e
+      .groupBy(_._1)
+      .view
+      .mapValues(_.map(_._2))
+      .toList
+      .sortBy(x => x._2.head.at)(eventOrdering)
+      .map: (period, events) =>
+        (period, ModTimeline.aggregateEvents(events))
+      .map(renderPeriod(t))
+
+  private def renderPeriod(t: ModTimeline)(period: (String, List[Event]))(using Translate) =
+    div(cls := "mod-timeline__period")(
+      h3(period._1),
+      div(cls := "mod-timeline__period__events")(period._2.map(renderEvent(t)))
     )
 
   private def renderEvent(t: ModTimeline)(e: Event)(using Translate) =
-    div(cls := s"mod-timeline__event mod-timeline__event--${e.key}")(
+    val isRecent = e.at.isAfter(nowInstant.minusMonths(6))
+    div(
+      cls := List(
+        "mod-timeline__event"            -> true,
+        s"mod-timeline__event--${e.key}" -> true,
+        "mod-timeline__event--recent"    -> isRecent
+      )
+    )(
       a(cls := "mod-timeline__event__flair", href := e.url(t.user)):
-        img(src := flairSrc(e.flair), title := e.key)
+        img(src := flairSrc(e.flair), title := s"${e.key} ${showInstant(e.at)}")
       ,
-      showTime(e.at),
       div(cls := "mod-timeline__event__body")(renderEventBody(t)(e))
     )
 
@@ -63,49 +86,51 @@ final class ModTimelineUi(helpers: Helpers)(
       else short
 
   private def renderPublicLine(l: PublicLine)(using Translate) = frag(
-    renderMod(UserId.lichess.into(ModId)),
+    "Chat flag",
     publicLineSource(l.from),
-    renderText(l.text, true)
+    fragList(
+      PublicLine.merge.split(l.text).map(quote => span(cls := "message")(renderText(quote, true))),
+      " | "
+    )
   )
 
   private def renderReportNew(r: ReportNewAtom)(using Translate) =
     import r.*
-    val flag = atoms.head.parseFlag
     frag(
       if r.atoms.size == 1 && r.atoms.head.by.is(UserId.lichess)
       then renderMod(UserId.lichess.into(ModId))
-      else strong(cls := "mod-timeline__event__from")(pluralize("player", r.atoms.size)),
-      span(cls := "mod-timeline__event__action")(
-        flag match
-          case Some(f) => publicLineSource(f.source)
-          case None =>
-            frag(
-              " opened a ",
-              report.room.name,
-              " report about ",
-              atoms.head.reason.name
-            )
-      ),
-      flag.fold(renderText(atoms.head.text, false)): flag =>
-        renderText(flag.quotes.mkString(" | "), true)
+      else
+        strong(
+          cls   := "mod-timeline__event__from",
+          title := r.atoms.toList.map(_.by.id).map(usernameOrId).map(_.toString).mkString(", ")
+        )(pluralize("player", r.atoms.size))
+      ,
+      span(cls := "mod-timeline__event__action")(" opened a ", atoms.head.reason.name, " report"),
+      renderText(atoms.head.text, true)
     )
 
   private def renderReportClose(r: ReportClose)(using Translate) = frag(
     renderMod(r.done.by),
-    " closed the ",
-    r.report.room.name,
-    " report about ",
+    " closed the report about ",
     r.report.atoms.toList.map(_.reason.name).mkString(", ")
   )
 
   private def renderModlog(user: User)(e: Modlog)(using Translate) =
-    val actionTag = if Modlog.isSentence(e.action) then badTag else span
     val author: Frag =
       if e.action == Modlog.selfCloseAccount then renderUser(user.id)
       else renderMod(e.mod)
     frag(
       author,
-      actionTag(cls := "mod-timeline__event__action")(e.showAction),
+      span(
+        cls := List(
+          "mod-timeline__event__action"               -> true,
+          s"mod-timeline__event__action--${e.action}" -> true,
+          "mod-timeline__event__action--sentence"     -> Modlog.isSentence(e.action),
+          "mod-timeline__event__action--undo"         -> Modlog.isUndo(e.action)
+        )
+      )(
+        e.showAction
+      ),
       div(cls := "mod-timeline__text"):
         e.gameId.fold[Frag](e.details.orZero: String) { gameId =>
           a(href := s"${routes.Round.watcher(gameId, Color.white).url}?pov=${e.user.so(_.value)}")(

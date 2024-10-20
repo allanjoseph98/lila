@@ -30,7 +30,6 @@ def communication(
     priv: Boolean
 )(using ctx: Context, renderIp: RenderIp) =
   val u = timeline.user
-  //                     notes.filter(_.from != UserId.irwin),
   Page(s"${u.username} communications")
     .css("mod.communication")
     .css(isGranted(_.UserModView).option("mod.user"))
@@ -81,75 +80,7 @@ def communication(
             )
           )
         ),
-        views.mod.timeline.render(timeline),
-        // reports.nonEmpty.option(
-        //   frag(
-        //     h2("Comm reports"),
-        //     div(cls := "reports history")(
-        //       reports
-        //         .flatMap(_.atoms.toList)
-        //         .map: a =>
-        //           div(
-        //             h3(a.reason.name),
-        //             userIdLink(a.by.some),
-        //             " ",
-        //             momentFromNowServer(a.at),
-        //             ": ",
-        //             richText(a.text)
-        //           )
-        //     )
-        //   )
-        // ),
-        // history.nonEmpty.option(
-        //   frag(
-        //     h2("Moderation history"),
-        //     div(cls := "history")(
-        //       history.map: e =>
-        //         div(
-        //           userIdLink(e.mod.userId.some),
-        //           " ",
-        //           b(e.showAction),
-        //           " ",
-        //           u.username,
-        //           " ",
-        //           e.details,
-        //           " ",
-        //           momentFromNowServer(e.date)
-        //         )
-        //     )
-        //   )
-        // ),
-        // notes.nonEmpty.option(
-        //   frag(
-        //     h2("Notes from other users"),
-        //     div(cls := "notes")(
-        //       notes.map: note =>
-        //         (isGranted(_.Admin) || !note.dox).option(
-        //           div(
-        //             userIdLink(note.from.some),
-        //             " ",
-        //             momentFromNowServer(note.date),
-        //             ": ",
-        //             richText(note.text)
-        //           )
-        //         )
-        //     )
-        //   )
-        // ),
-        h2("Dubious public chats"),
-        if publicLines.isEmpty then strong("None!")
-        else
-          ul(cls := "public_chats")(
-            publicLines.reverse.map: line =>
-              li(
-                momentFromNowServer(line.date),
-                " ",
-                publicLineSource(line.from),
-                nbsp,
-                span(cls := "line author")(span(cls := "message")(Analyser.highlightBad(line.text)))
-              )
-          )
-        ,
+        views.mod.timeline.renderComm(timeline),
         priv.option(
           frag(
             h2("Recent private chats"),
