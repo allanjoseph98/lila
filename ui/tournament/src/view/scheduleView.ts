@@ -4,7 +4,7 @@ import perfIcons from 'common/perfIcons';
 import { Tournament, Clock } from '../interfaces';
 import { Ctrl, Lane } from '../tournament.schedule';
 import dragscroll from 'dragscroll';
-import { padWithZero } from './util';
+import { padWithZero } from 'tourney/util';
 
 const scale = 8;
 let now: number, startTime: number, stopTime: number;
@@ -264,7 +264,7 @@ export default function (ctrl: Ctrl) {
         ...tourLanes.map(lane =>
           h(
             'div.tournamentline',
-            lane.map(tour => renderTournament(ctrl, tour)),
+            lane.map(tour => renderTournament(tour)),
           ),
         ),
       ],

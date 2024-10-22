@@ -16,7 +16,8 @@
     "common": "workspace:*",
     "flatpickr": "^4.6.13",
     "game": "workspace:*",
-    "snabbdom": "3.5.1"
+    "snabbdom": "3.5.1",
+    "tourney": "workspace:*"
   },
   "lichess": {
     "bundles": "src/swiss.ts"

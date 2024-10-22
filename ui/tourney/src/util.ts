@@ -3,32 +3,38 @@ import * as licon from 'common/licon';
 import { numberFormat } from 'common/number';
 import { dataIcon } from 'common/snabbdom';
 import { fullName, userRating } from 'common/userLink';
-import { SimplePlayer } from '../interfaces';
+import { BasePlayer as SwissPlayer, Player } from './interfaces';
 
-export const ratio2percent = (r: number) => Math.round(100 * r) + '%';
+export const ratio2percent = (r: number): string => Math.round(100 * r) + '%';
+
+const isSwissPlayer = (p: Player): p is SwissPlayer => 'user' in p;
 
 export const player = (
-  p: SimplePlayer,
+  p: Player,
   asLink: boolean,
   withRating: boolean,
   defender = false,
   leader = false,
-) =>
-  h(
-    'a.ulpt.user-link' + (((p.title || '') + p.name).length > 15 ? '.long' : ''),
+): VNode => {
+  const fromSwiss = isSwissPlayer(p);
+  const user = fromSwiss ? p.user : p;
+  return h(
+    'a.ulpt.user-link' + (((user.title || '') + user.name).length > 15 ? '.long' : ''),
     {
-      attrs: asLink || 'ontouchstart' in window ? { href: '/@/' + p.name } : { 'data-href': '/@/' + p.name },
+      attrs:
+        asLink || 'ontouchstart' in window ? { href: '/@/' + user.name } : { 'data-href': '/@/' + user.name },
       hook: { destroy: vnode => $.powerTip.destroy(vnode.elm as HTMLElement) },
     },
     [
       h(
         'span.name' + (defender ? '.defender' : leader ? '.leader' : ''),
         defender ? { attrs: dataIcon(licon.Shield) } : leader ? { attrs: dataIcon(licon.Crown) } : {},
-        fullName(p),
+        fullName(user),
       ),
-      withRating ? h('span.rating', userRating({ ...p, brackets: false })) : null,
+      withRating ? h('span.rating', userRating({ ...user, brackets: false })) : null,
     ],
   );
+};
 
 export function numberRow(name: string, value: number): VNode;
 export function numberRow(name: string, value: [number, number], typ: 'percent'): VNode;

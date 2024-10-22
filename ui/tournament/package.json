@@ -18,7 +18,8 @@
     "date-fns": "2.29.3",
     "dragscroll": "^0.0.8",
     "game": "workspace:*",
-    "snabbdom": "3.5.1"
+    "snabbdom": "3.5.1",
+    "tourney": "workspace:*"
   },
   "lichess": {
     "bundles": [

@@ -2,7 +2,7 @@ import { VNode } from 'snabbdom';
 import * as licon from 'common/licon';
 import { spinnerVdom as spinner } from 'common/spinner';
 import { bind, dataIcon, looseH as h } from 'common/snabbdom';
-import { player as renderPlayer, numberRow } from './util';
+import { player as renderPlayer, numberRow } from 'tourney/util';
 import { Pairing } from '../interfaces';
 import { isOutcome } from '../util';
 import SwissCtrl from '../ctrl';

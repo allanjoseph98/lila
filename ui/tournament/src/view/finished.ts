@@ -8,7 +8,7 @@ import { teamStanding } from './battle';
 import header from './header';
 import playerInfo from './playerInfo';
 import teamInfo from './teamInfo';
-import { numberRow } from './util';
+import { numberRow } from 'tourney/util';
 import { MaybeVNodes } from 'common/snabbdom';
 import { once } from 'common/storage';
 

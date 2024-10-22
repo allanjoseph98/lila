@@ -9,7 +9,7 @@ import { Tournament } from '../interfaces';
 import { Ctrl, Lanes } from '../tournament.calendar';
 import * as licon from 'common/licon';
 import perfIcons from 'common/perfIcons';
-import { padWithZero } from './util';
+import { padWithZero } from 'tourney/util';
 
 function tournamentClass(tour: Tournament, day: Date): Classes {
   const classes: Classes = {

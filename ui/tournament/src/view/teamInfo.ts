@@ -3,7 +3,7 @@ import * as licon from 'common/licon';
 import { spinnerVdom as spinner } from 'common/spinner';
 import { bind, dataIcon } from 'common/snabbdom';
 import TournamentController from '../ctrl';
-import { numberRow, player as renderPlayer } from './util';
+import { numberRow, player as renderPlayer } from 'tourney/util';
 import { teamName } from './battle';
 
 export default function (ctrl: TournamentController): VNode | undefined {

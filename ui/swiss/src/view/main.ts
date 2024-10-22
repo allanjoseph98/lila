@@ -2,7 +2,7 @@ import { VNode } from 'snabbdom';
 import * as licon from 'common/licon';
 import { spinnerVdom as spinner } from 'common/spinner';
 import { dataIcon, bind, onInsert, LooseVNodes, looseH as h } from 'common/snabbdom';
-import { numberRow } from './util';
+import { numberRow } from 'tourney/util';
 import SwissCtrl from '../ctrl';
 import * as pagination from '../pagination';
 import { SwissData, Pager } from '../interfaces';

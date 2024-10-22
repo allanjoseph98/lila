@@ -745,6 +745,9 @@ importers:
       snabbdom:
         specifier: 3.5.1
         version: 3.5.1
+      tourney:
+        specifier: workspace:*
+        version: link:../tourney
 
   ui/tournament:
     dependencies:
@@ -766,6 +769,18 @@ importers:
       game:
         specifier: workspace:*
         version: link:../game
+      snabbdom:
+        specifier: 3.5.1
+        version: 3.5.1
+      tourney:
+        specifier: workspace:*
+        version: link:../tourney
+
+  ui/tourney:
+    dependencies:
+      common:
+        specifier: workspace:*
+        version: link:../common
       snabbdom:
         specifier: 3.5.1
         version: 3.5.1

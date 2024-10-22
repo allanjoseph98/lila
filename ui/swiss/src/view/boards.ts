@@ -2,7 +2,7 @@ import { Board, SwissOpts } from '../interfaces';
 import { renderClock } from 'common/miniBoard';
 import { h, VNode } from 'snabbdom';
 import { opposite } from 'chessground/util';
-import { player as renderPlayer } from './util';
+import { player as renderPlayer } from 'tourney/util';
 
 export function many(boards: Board[], opts: SwissOpts): VNode {
   return h('div.swiss__boards.now-playing', boards.map(renderBoard(opts)));

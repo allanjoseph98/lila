@@ -2,7 +2,7 @@ import { VNode } from 'snabbdom';
 import * as licon from 'common/licon';
 import { spinnerVdom as spinner } from 'common/spinner';
 import { bind, dataIcon, looseH as h } from 'common/snabbdom';
-import { numberRow, player as renderPlayer } from './util';
+import { numberRow, player as renderPlayer } from 'tourney/util';
 import { fullName } from 'common/userLink';
 import { teamName } from './battle';
 import * as status from 'game/status';
