@@ -74,22 +74,50 @@ final class RelayCardUi(helpers: Helpers, ui: RelayUi):
       )
     )
 
-  def renderTourOfGroup(group: RelayGroup)(tour: RelayTour)(using Context) =
-    link(tour, routes.RelayTour.show(tour.slug, tour.id).url, false)(
-      cls := s"relay-card--tier-${tour.tier.so(_.v)}"
-    )(tourBody(tour, group.name.shortTourName(tour.name)))
+  def renderTourOfGroup(group: RelayGroup)(twr: RelayTour.WithRounds)(using Context) =
+    link(twr.tour, routes.RelayTour.show(twr.tour.slug, twr.tour.id).url, false)(
+      cls := s"relay-card--tier-${twr.tour.tier.so(_.v)}"
+    )(renderWithRounds(twr, group.name.shortTourName(twr.tour.name)))
 
   def empty(t: RelayTour)(using Translate) =
-    link(t, routes.RelayTour.show(t.slug, t.id).url, false)(tourBody(t, t.name))
+    link(t, routes.RelayTour.show(t.slug, t.id).url, false)(tourBody(t, t.name, None))
 
-  private def tourBody(t: RelayTour, name: RelayTour.Name)(using Translate) = frag(
-    image(t),
-    span(cls := "relay-card__body")(
-      span(cls := "relay-card__info")(
-        t.dates.map: dates =>
-          span(showDate(dates.start))
-      ),
-      h3(cls := "relay-card__title")(name),
-      truncatedPlayers(t)
+  private def renderWithRounds(twr: RelayTour.WithRounds, name: RelayTour.Name)(using Translate) =
+    def nameAndDate(round: RelayRound, time: Instant): Frag =
+      span(round.name, " | ", momentFromNow(time))
+
+    val roundDate = twr.rounds
+      .find(r => !r.isFinished && r.startsAtTime.isDefined)
+      .flatMap: round =>
+        round.startsAtTime.map: startTime =>
+          nameAndDate(round, startTime)
+      .orElse:
+        twr.rounds
+          .filter(_.isFinished)
+          .lastOption
+          .flatMap: round =>
+            round.finishedAt.map: finishedAt =>
+              nameAndDate(round, finishedAt)
+
+    tourBody(twr.tour, name, roundDate)
+
+  private def tourBody(t: RelayTour, name: RelayTour.Name, roundDate: Option[Frag])(using Translate) =
+    frag(
+      image(t),
+      span(cls := "relay-card__body")(
+        span(cls := "relay-card__info")(
+          roundDate.orElse:
+            t.dates.map: dates =>
+              span(showDate(dates.start))
+        ),
+        h3(cls := "relay-card__title")(
+          name,
+          if t.active.not then i(cls := "good", dataIcon := Icon.Checkmark).some
+          else
+            t.live
+              .filter(_ == true)
+              .map(_ => i(cls := "bad", dataIcon := Icon.DiscBig))
+        ),
+        truncatedPlayers(t)
+      )
     )
-  )

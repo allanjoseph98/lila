@@ -7,7 +7,7 @@ import ScalatagsTemplate.{ *, given }
 final class RelayGroupUi(ui: RelayUi, card: RelayCardUi, pageMenu: RelayMenuUi):
   def show(
       group: lila.relay.RelayGroup,
-      tours: List[lila.relay.RelayTour]
+      tours: List[RelayTour.WithRounds]
   )(using Context) =
     Page(group.name.value).css("bits.relay.group"):
       main(cls := "relay-group page-menu")(

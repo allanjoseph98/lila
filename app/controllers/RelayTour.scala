@@ -195,8 +195,9 @@ final class RelayTour(env: Env, apiC: => Api, roundC: => RelayRound) extends Lil
       else
         for
           allTours <- env.relay.api.toursByIds(group.tours)
-          tours = if isGrantedOpt(_.StudyAdmin) then allTours else allTours.filter(_.canView)
-          page <- Ok.page(views.relay.group.show(group, tours))
+          visibleTours = if isGrantedOpt(_.StudyAdmin) then allTours else allTours.filter(_.canView)
+          toursWithRounds <- visibleTours.traverse(env.relay.api.withRounds)
+          page <- Ok.page(views.relay.group.show(group, toursWithRounds))
         yield page
 
   def embedShow(@nowarn slug: String, id: RelayTourId) = Anon:

@@ -83,6 +83,17 @@
     .relay-cards--tier-best & {
       font-size: 1.4em;
     }
+    i {
+      position: absolute;
+      right: 0.5em;
+      font-size: 0.9em;
+      &.good {
+        color: $c-good;
+      }
+      &.bad {
+        color: $c-bad;
+      }
+    }
   }
   &__players {
     @extend %roboto, %flex-center;
